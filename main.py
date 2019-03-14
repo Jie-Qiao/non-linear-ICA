@@ -10,19 +10,17 @@ np.random.seed(200)
 train_or_load = sys.argv[1] 
 
 ## Sources parameters ##
-n_sources = 3
-n_points = 10**3
-AR_coef=0.7
-step=0.5
+n_sources = 20
+n_points = 5*10**3
+AR_coef=0.8
+step= 1
 sec = int(1/step)
 
 ## Mixing parameters ##
-n_mixing_layers = 3
+n_mixing_layers = 5
 mixing_layer_size = 2*n_sources
 leaky_slope = 0.7
 
-## MLP parameters
-n_
 
 
 
@@ -55,7 +53,7 @@ if train_or_load == 'train':
     ## Building and training our logistic model ##
     logistic = logistic_model(n_sources,n_layers_feature=n_mixing_layers,feature_layer_size=mixing_layer_size,n_layers_psi=n_mixing_layers,psi_layer_size=mixing_layer_size)
     logistic.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
-    logistic.fit(x = [x_concat,u_concat],y=labels, epochs=10000, batch_size= 100)
+    logistic.fit(x = [x_concat,u_concat],y=labels, epochs=50, batch_size= 100)
 
     logistic.save('models/logistic_model.h5')
 
@@ -75,12 +73,14 @@ for layer in activations:
         extracted_features = activations[layer]
 
 ## Apply FastICA
-transformer = FastICA(n_components=n_sources,random_state=200)
-transformed_extracted_features = transformer.fit_transform(extracted_features)
-#plot_signals(transformed_extracted_features,step,name='extracted_features')
-#transformed_extracted_features = extracted_features
+#transformer = FastICA(n_components=n_sources,random_state=200)
+#transformed_extracted_features = transformer.fit_transform(extracted_features)
+transformed_extracted_features = extracted_features
+
+
+
+plot_signals(transformed_extracted_features,step,name='extracted_features')
 ## Compare the extracted features to original sources
-print(transformed_extracted_features.shape,sources.shape)
 h_u_pos = np.concatenate([transformed_extracted_features,sources[sec:]],axis=1)
 h_u_neg = np.concatenate([transformed_extracted_features,-sources[sec:]],axis=1)
 R_pos = np.corrcoef(h_u_pos,rowvar=False)[n_sources:,:n_sources]
