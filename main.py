@@ -11,15 +11,20 @@ train_or_load = sys.argv[1]
 
 ## Sources parameters ##
 n_sources = 20
-n_points = 5*10**3
-AR_coef=0.8
+n_points = 2**14
+AR_coef=0.7
 step= 1
 sec = int(1/step)
 
 ## Mixing parameters ##
-n_mixing_layers = 5
+n_mixing_layers = 1
 mixing_layer_size = 2*n_sources
 leaky_slope = 0.7
+
+## Training parameters
+epochs = 500
+regularization_coeff = 0.0001
+batch_size = 64
 
 
 
@@ -51,9 +56,9 @@ if train_or_load == 'train':
     x_concat = x_concat[shuffling_order,:]
     u_concat = u_concat[shuffling_order,:]
     ## Building and training our logistic model ##
-    logistic = logistic_model(n_sources,n_layers_feature=n_mixing_layers,feature_layer_size=mixing_layer_size,n_layers_psi=n_mixing_layers,psi_layer_size=mixing_layer_size)
+    logistic = logistic_model(n_sources,n_layers_feature=n_mixing_layers,feature_layer_size=mixing_layer_size,n_layers_psi=n_mixing_layers,psi_layer_size=mixing_layer_size,regularization_coeff=regularization_coeff)
     logistic.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
-    logistic.fit(x = [x_concat,u_concat],y=labels, epochs=50, batch_size= 100)
+    logistic.fit(x = [x_concat,u_concat],y=labels, epochs=epochs, batch_size= batch_size)
 
     logistic.save('models/logistic_model.h5')
 
