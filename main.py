@@ -7,11 +7,11 @@ from sklearn.decomposition import FastICA
 from keras.models import load_model
 np.random.seed(200)
 ##
-train_or_load = sys.argv[1] 
+train_or_load = sys.argv[1]
 
 ## Sources parameters ##
 n_sources = 20
-n_points = 5*10**3
+n_points = 2 ** 16
 AR_coef=0.8
 step= 1
 sec = int(1/step)
@@ -53,7 +53,7 @@ if train_or_load == 'train':
     ## Building and training our logistic model ##
     logistic = logistic_model(n_sources,n_layers_feature=n_mixing_layers,feature_layer_size=mixing_layer_size,n_layers_psi=n_mixing_layers,psi_layer_size=mixing_layer_size)
     logistic.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
-    logistic.fit(x = [x_concat,u_concat],y=labels, epochs=50, batch_size= 100)
+    logistic.fit(x = [x_concat,u_concat],y=labels, epochs=120, batch_size= 1000)
 
     logistic.save('models/logistic_model.h5')
 
