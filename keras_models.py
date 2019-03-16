@@ -38,10 +38,10 @@ def logistic_model(n_sources,n_layers_feature,feature_layer_size,n_layers_psi,ps
     for i in range(n_sources):
         hi = keras.layers.Lambda(lambda x: x[:,i])(features)
         hi = keras.layers.Reshape([1])(hi)
-        input = keras.layers.Concatenate(axis=1)([hi,u])
-        z = maximum([Dense(psi_layer_size,kernel_initializer=initializer,kernel_regularizer=regularizers.l2(regularization_coeff))(input) for _ in range(2)])
-        for _ in range(n_layers_psi-1):
-            psi = maximum([Dense(psi_layer_size,kernel_initializer=initializer,kernel_regularizer=regularizers.l2(regularization_coeff))(z) for _ in range(2)])
+        psi = keras.layers.Concatenate(axis=1)([hi,u])
+        #z = maximum([Dense(psi_layer_size,kernel_initializer=initializer,kernel_regularizer=regularizers.l2(regularization_coeff))(input) for _ in range(2)])
+        for _ in range(n_layers_psi):
+            psi = maximum([Dense(psi_layer_size,kernel_initializer=initializer,kernel_regularizer=regularizers.l2(regularization_coeff))(psi) for _ in range(2)])
         out = maximum([Dense(1,kernel_initializer=initializer,kernel_regularizer=regularizers.l2(regularization_coeff))(psi) for _ in range(2)])
         all_psi.append(out)
     r = keras.layers.Add()(all_psi)
