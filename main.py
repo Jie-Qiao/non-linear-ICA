@@ -1,20 +1,24 @@
 import numpy as np
-from signals import *
-from keras_models import *
+from signals import plot_signals,mix_sources,load_signal_from_disk,write_signal_to_disk, generate_AR_source
+from keras_models import logistic_model
 from keract import get_activations
 import sys
-from sklearn.decomposition import FastICA
+# from sklearn.decomposition import FastICA
 from keras.models import load_model
 from sklearn.feature_selection import mutual_info_regression
 from signals import pca
+from MINE import run_mine
+
 np.random.seed(200)
 ##
-train_or_load = sys.argv[1] 
+train_or_load = sys.argv[1]
 
 ## Sources parameters ##
 n_sources = 20
 n_points = 2**13
 AR_coef=0.7
+n_points = 2 ** 16
+AR_coef=0.8
 step= 1
 sec = int(1/step)
 
@@ -27,6 +31,9 @@ leaky_slope = 0.2
 epochs = 60
 regularization_coeff = 0.000
 batch_size = 64
+epochs = 200
+regularization_coeff = 0.0001
+batch_size = 2048
 
 
 
@@ -74,6 +81,14 @@ if train_or_load == 'train':
 
     logistic = logistic_model(n_sources,n_layers_feature=n_mixing_layers,feature_layer_size=mixing_layer_size,n_layers_psi=n_mixing_layers,psi_layer_size=mixing_layer_size,regularization_coeff=regularization_coeff)
     logistic.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+
+    ## Run MINE on activations before to get MI estimate
+    activations = get_activations(logistic, [x,u])
+    for layer in activations:
+        if 'feature' in layer:
+            extracted_features = activations[layer]
+    run_mine(extracted_features, name="MINE_pre_train")
+
     logistic.fit(x = [x_concat,u_concat],y=labels, epochs=epochs, batch_size= batch_size)
 
     logistic.save('models/logistic_model.h5')
@@ -84,6 +99,7 @@ elif train_or_load == 'load':
     u = np.copy(mixtures)[:-sec]
     x = mixtures[sec:]
     logistic = load_model('models/logistic_model.h5')
+
 else:
     print("Please specify whether you want to train a new model or load an already existing one")
 
@@ -94,12 +110,14 @@ for layer in activations:
         extracted_features = activations[layer]
 
 ## Apply FastICA
-#transformer = FastICA(n_components=n_sources,random_state=200)
-#transformed_extracted_features = transformer.fit_transform(extracted_features)
+# transformer = FastICA(n_components=n_sources,random_state=200)
+# transformed_extracted_features = transformer.fit_transform(extracted_features)
 transformed_extracted_features = extracted_features
 
 
 
+MIs = run_mine(extracted_features)
+# MIs2 = run_mine(transformed_extracted_features)
 plot_signals(transformed_extracted_features,step,name='extracted_features')
 ## Compare the extracted features to original sources
 h_u_pos = np.concatenate([transformed_extracted_features,sources[sec:]],axis=1)
@@ -119,4 +137,3 @@ i=0
 for matching_source,cor in zip(final_matching,max_cor):
     i += 1
     print("Extracted feature "+str(i)+" correponds to source "+str(matching_source+1)+" with corr coef: "+str(cor))
-
