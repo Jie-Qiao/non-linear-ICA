@@ -96,21 +96,21 @@ def showtimedata(X, filename,xlabel="Time", ylabel="Channel", fontsize=14, linew
                  intervalstd=10, figsize=None):
 
     # Prepare plot data ---------------------------------------
-    if figsize is None:
-        figsize = [2, 1]
-    X = X.copy()
-    X = X.reshape([X.shape[0],-1])
+    #if figsize is None:
+    #    figsize = [2, 1]
+    #X = X.copy()
+    #X = X.reshape([X.shape[0],-1])
 
-    if X.shape[1]==1:
-        X = X.reshape([1,-1])
+    #if X.shape[1]==1:
+    #    X = X.reshape([1,-1])
 
     Nch = X.shape[0]
     Nt = X.shape[1]
 
-    vInterval = X.std(axis=1).max() * intervalstd
-    vPos = vInterval * (np.arange(Nch,0,-1) - 1)
-    vPos = vPos.reshape([1, -1]).T  # convert to column vector
-    X = X + vPos
+    #vInterval = X.std(axis=1).max() * intervalstd
+    #vPos = vInterval * (np.arange(Nch,0,-1) - 1)
+    #vPos = vPos.reshape([1, -1]).T  # convert to column vector
+    #X = X + vPos
 
     # Plot ----------------------------------------------------
     #fig = plt.figure(figsize=(8*figsize[0], 6*figsize[1]))
