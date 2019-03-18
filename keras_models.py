@@ -44,6 +44,7 @@ def logistic_model(n_sources,n_layers_feature,feature_layer_size,n_layers_psi,ps
             psi = maximum([Dense(psi_layer_size,kernel_initializer=initializer,kernel_regularizer=regularizers.l2(regularization_coeff))(psi) for _ in range(2)])
         out = maximum([Dense(1,kernel_initializer=initializer,kernel_regularizer=regularizers.l2(regularization_coeff))(psi) for _ in range(2)])
         all_psi.append(out)
+        
     r = keras.layers.Add()(all_psi)
 
     probas = Activation('sigmoid')(r)

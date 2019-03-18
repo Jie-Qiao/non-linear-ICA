@@ -5,25 +5,27 @@ from keract import get_activations
 import sys
 from sklearn.decomposition import FastICA
 from keras.models import load_model
+from sklearn.feature_selection import mutual_info_regression
+from signals import pca
 np.random.seed(200)
 ##
 train_or_load = sys.argv[1] 
 
 ## Sources parameters ##
 n_sources = 20
-n_points = 2**14
+n_points = 2**13
 AR_coef=0.7
 step= 1
 sec = int(1/step)
 
 ## Mixing parameters ##
-n_mixing_layers = 1
+n_mixing_layers = 2
 mixing_layer_size = 2*n_sources
-leaky_slope = 0.7
+leaky_slope = 0.2
 
 ## Training parameters
-epochs = 500
-regularization_coeff = 0.0001
+epochs = 60
+regularization_coeff = 0.000
 batch_size = 64
 
 
@@ -35,10 +37,22 @@ if train_or_load == 'train':
     ## Generating sources and mixtures
     sources = generate_AR_source(n_sources,n_points,AR_coef,step)
     mixtures = mix_sources(sources,n_mixing_layers,mixing_layer_size, leaky_slope)
-    write_signal_to_disk(sources,step,filename='sources')
-    write_signal_to_disk(mixtures,step,filename='mixtures')
+    mixtures = pca(mixtures.T)
+
+    assert mixtures.shape == sources.shape
+    #write_signal_to_disk(sources,step,filename='sources')
+    #write_signal_to_disk(mixtures,step,filename='mixtures')
     plot_signals(sources,step,name='sources')
     plot_signals(mixtures,step,name='mixtures')
+
+
+    mutual_info = [mutual_info_regression(sources[:,0].reshape((-1,1)),sources[:,i])[0] for i in range(1,n_sources)]
+    print("Estimated mutual info between sources")
+    print(mutual_info)
+
+    mutual_info = [mutual_info_regression(mixtures[:,0].reshape((-1,1)),mixtures[:,i])[0] for i in range(1,n_sources)]
+    print("Estimated mutual info between mixtures")
+    print(mutual_info)
 
     u = np.copy(mixtures)[:-sec]
     u_shuffled = np.copy(u)
@@ -55,7 +69,9 @@ if train_or_load == 'train':
 
     x_concat = x_concat[shuffling_order,:]
     u_concat = u_concat[shuffling_order,:]
+
     ## Building and training our logistic model ##
+
     logistic = logistic_model(n_sources,n_layers_feature=n_mixing_layers,feature_layer_size=mixing_layer_size,n_layers_psi=n_mixing_layers,psi_layer_size=mixing_layer_size,regularization_coeff=regularization_coeff)
     logistic.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
     logistic.fit(x = [x_concat,u_concat],y=labels, epochs=epochs, batch_size= batch_size)
