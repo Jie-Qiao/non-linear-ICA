@@ -1,3 +1,5 @@
 plots/
 __pycache__/
 data/
+TCL/storage/
+TCL/storage/temp/

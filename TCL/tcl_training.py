@@ -39,7 +39,7 @@ momentum = 0.9 # momentum parameter of SGD
 max_steps = int(7e5) # number of iterations (mini-batches)
 decay_steps = int(5e5) # decay steps (tf.train.exponential_decay)
 decay_factor = 0.1 # decay factor (tf.train.exponential_decay)
-batch_size = 512 # mini-batch size
+batch_size = 2048 # mini-batch size
 moving_average_decay = 0.999 # moving average decay of variables to be saved
 checkpoint_steps = 1e5 # interval to save checkpoint
 
@@ -58,14 +58,14 @@ saveparmpath = os.path.join(train_dir, 'parm.pkl') # file name to save parameter
 # =============================================================
 
 # Prepare save folder -----------------------------------------
-if train_dir.find("./storage/") > -1:
-    if os.path.exists(train_dir):
-        print("delete savefolder: {0:s}...".format(train_dir))
-        shutil.rmtree(train_dir)  # Remove folder
-    print("make savefolder: {0:s}...".format(train_dir))
-    os.makedirs(train_dir)  # Make folder
-else:
-    assert False, "savefolder looks wrong"
+# if train_dir.find("./storage/") > -1:
+#     if os.path.exists(train_dir):
+#         print("delete savefolder: {0:s}...".format(train_dir))
+#         shutil.rmtree(train_dir)  # Remove folder
+#     print("make savefolder: {0:s}...".format(train_dir))
+#     os.makedirs(train_dir)  # Make folder
+# else:
+#     assert False, "savefolder looks wrong"
 
 
 # Generate sensor signal --------------------------------------
@@ -81,22 +81,22 @@ sensor, pca_parm = pca(sensor, num_comp=num_comp)
 
 
 # Train model (only MLR) --------------------------------------
-train(sensor,
-      label,
-      num_class = num_segment,
-      list_hidden_nodes = list_hidden_nodes,
-      initial_learning_rate = initial_learning_rate,
-      momentum = momentum,
-      max_steps = max_steps_init, # For init
-     decay_steps = decay_steps_init, # For init
-      decay_factor = decay_factor,
-      batch_size = batch_size,
-      train_dir = train_dir,
-      checkpoint_steps = checkpoint_steps,
-      moving_average_decay = moving_average_decay,
-      MLP_trainable = False, # For init
-      save_file='model_init.ckpt', # For init
-      random_seed = random_seed)
+# train(sensor,
+#       label,
+#       num_class = num_segment,
+#       list_hidden_nodes = list_hidden_nodes,
+#       initial_learning_rate = initial_learning_rate,
+#       momentum = momentum,
+#       max_steps = max_steps_init, # For init
+#      decay_steps = decay_steps_init, # For init
+#       decay_factor = decay_factor,
+#       batch_size = batch_size,
+#       train_dir = train_dir,
+#       checkpoint_steps = checkpoint_steps,
+#       moving_average_decay = moving_average_decay,
+#       MLP_trainable = False, # For init
+#       save_file='model_init.ckpt', # For init
+#       random_seed = random_seed)
 
 init_model_path = os.path.join(train_dir, 'model_init.ckpt')
 
