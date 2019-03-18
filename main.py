@@ -1,10 +1,11 @@
 import numpy as np
-from signals import *
-from keras_models import *
+from signals import plot_signals,mix_sources,load_signal_from_disk,write_signal_to_disk, generate_AR_source
+from keras_models import logistic_model
 from keract import get_activations
 import sys
-from sklearn.decomposition import FastICA
+# from sklearn.decomposition import FastICA
 from keras.models import load_model
+from MINE import run_mine
 np.random.seed(200)
 ##
 train_or_load = sys.argv[1]
@@ -22,9 +23,9 @@ mixing_layer_size = 2*n_sources
 leaky_slope = 0.7
 
 ## Training parameters
-epochs = 500
+epochs = 200
 regularization_coeff = 0.0001
-batch_size = 64
+batch_size = 2048
 
 
 
@@ -68,6 +69,7 @@ elif train_or_load == 'load':
     u = np.copy(mixtures)[:-sec]
     x = mixtures[sec:]
     logistic = load_model('models/logistic_model.h5')
+
 else:
     print("Please specify whether you want to train a new model or load an already existing one")
 
@@ -78,12 +80,13 @@ for layer in activations:
         extracted_features = activations[layer]
 
 ## Apply FastICA
-#transformer = FastICA(n_components=n_sources,random_state=200)
-#transformed_extracted_features = transformer.fit_transform(extracted_features)
+# transformer = FastICA(n_components=n_sources,random_state=200)
+# transformed_extracted_features = transformer.fit_transform(extracted_features)
 transformed_extracted_features = extracted_features
 
 
 
+MIs = run_mine(extracted_features)
 plot_signals(transformed_extracted_features,step,name='extracted_features')
 ## Compare the extracted features to original sources
 h_u_pos = np.concatenate([transformed_extracted_features,sources[sec:]],axis=1)
@@ -103,4 +106,3 @@ i=0
 for matching_source,cor in zip(final_matching,max_cor):
     i += 1
     print("Extracted feature "+str(i)+" correponds to source "+str(matching_source+1)+" with corr coef: "+str(cor))
-
