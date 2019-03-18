@@ -116,10 +116,11 @@ def show_mutual_info(X, filename='mutual_info.png',xlabel="Time", ylabel="Mutual
     #fig = plt.figure(figsize=(8*figsize[0], 6*figsize[1]))
 
     for i in range(Nch):
-        plt.plot(list(range(Nt)), X[i,:], linewidth=linewidth)
+        if i != 0:
+            plt.plot(list(range(Nt)), X[i,:], linewidth=linewidth)
 
     plt.xlim(0, Nt-1)
-    plt.ylim(X.min(),X.max())
+    # plt.ylim(X.min(),X.max())
 
     #ylabels = [str(num) for num in range(Nch)]
     #plt.yticks(vPos,ylabels)

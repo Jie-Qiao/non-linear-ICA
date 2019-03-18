@@ -7,6 +7,7 @@
 from datetime import datetime
 import os.path
 import time
+import pickle
 import numpy as np
 import tensorflow as tf
 from sklearn.feature_selection import mutual_info_regression
@@ -159,7 +160,7 @@ def train(data,
                           'sec/batch)')
             print (format_str % (datetime.now(), step, lr_value, loss_value, accuracy_value*100,
                                  examples_per_sec, sec_per_batch))
-        if step % 1000 == 0:
+        if step % 500 == 0:
             m = mutual_info_regression(extracted_feats, extracted_feats[:,0])
             print(m)
             mutual_infos.append(m)
@@ -178,7 +179,8 @@ def train(data,
     save_path = os.path.join(train_dir, save_file)
     print("Save model in file: {0:s}".format(save_path))
     saver.save(sess, save_path)
-    show_mutual_info(np.array(mutual_infos).T, 'mutal_infos.png',xlabel="Time", ylabel="Channel", fontsize=14, linewidth=1.5,
-             intervalstd=10, figsize=None)
+    show_mutual_info(np.array(mutual_infos).T)
+    with open(train_dir + "/mutual_infos.pkl" , 'wb') as f:
+        pickle.dump(mutual_infos, f, pickle.HIGHEST_PROTOCOL)
 
 
