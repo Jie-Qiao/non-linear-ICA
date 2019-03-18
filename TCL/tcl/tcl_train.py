@@ -13,6 +13,7 @@ import tensorflow as tf
 from sklearn.feature_selection import mutual_info_regression
 from tcl import tcl
 from subfunc.showdata import show_mutual_info
+from MINE import run_mine
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -131,6 +132,7 @@ def train(data,
     num_data = data.shape[1]
     num_steps_in_epoch = int(np.floor(num_data / batch_size))
     mutual_infos = []
+    mutual_infos_mine = []
     for step in range(max_steps):
 
         start_time = time.time()
@@ -164,6 +166,16 @@ def train(data,
             m = mutual_info_regression(extracted_feats, extracted_feats[:,0])
             print(m)
             mutual_infos.append(m)
+            with open(train_dir + "/mutual_infos.pkl" , 'wb') as f:
+                pickle.dump(mutual_infos, f, pickle.HIGHEST_PROTOCOL)
+
+        if step % 3000 == 0:
+            # N x d
+            mine_name = "MINE-step" + str(step)
+            m = run_mine(extracted_feats, name=mine_name)
+            mutual_infos_mine.append(m)
+            with open(train_dir + "/mutual_infos_mine.pkl" , 'wb') as f:
+                pickle.dump(mutual_infos_mine, f, pickle.HIGHEST_PROTOCOL)
 
         if step % summary_steps == 0:
             summary_str = sess.run(summary_op, feed_dict=feed_dict)
@@ -180,7 +192,11 @@ def train(data,
     print("Save model in file: {0:s}".format(save_path))
     saver.save(sess, save_path)
     show_mutual_info(np.array(mutual_infos).T)
+
     with open(train_dir + "/mutual_infos.pkl" , 'wb') as f:
         pickle.dump(mutual_infos, f, pickle.HIGHEST_PROTOCOL)
+
+    with open(train_dir + "/mutual_infos_mine.pkl" , 'wb') as f:
+        pickle.dump(mutual_infos_mine, f, pickle.HIGHEST_PROTOCOL)
 
 

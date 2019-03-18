@@ -36,12 +36,12 @@ list_hidden_nodes = [40, 40, 40, 40, 20]
 # Training ----------------------------------------------------
 initial_learning_rate = 0.01 # initial learning rate
 momentum = 0.9 # momentum parameter of SGD
-max_steps = int(1e4) # number of iterations (mini-batches)
+max_steps = int(1e6) # number of iterations (mini-batches)
 decay_steps = int(5e5) # decay steps (tf.train.exponential_decay)
 decay_factor = 0.1 # decay factor (tf.train.exponential_decay)
 batch_size = 2048 # mini-batch size
 moving_average_decay = 0.999 # moving average decay of variables to be saved
-checkpoint_steps = 1e5 # interval to save checkpoint
+checkpoint_steps = 1e4 # interval to save checkpoint
 
 # for MLR initialization
 max_steps_init = int(7e4) # number of iterations (mini-batches) for initializing only MLR
