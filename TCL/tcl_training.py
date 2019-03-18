@@ -36,7 +36,7 @@ list_hidden_nodes = [40, 40, 40, 40, 20]
 # Training ----------------------------------------------------
 initial_learning_rate = 0.01 # initial learning rate
 momentum = 0.9 # momentum parameter of SGD
-max_steps = int(7e5) # number of iterations (mini-batches)
+max_steps = int(1e4) # number of iterations (mini-batches)
 decay_steps = int(5e5) # decay steps (tf.train.exponential_decay)
 decay_factor = 0.1 # decay factor (tf.train.exponential_decay)
 batch_size = 2048 # mini-batch size

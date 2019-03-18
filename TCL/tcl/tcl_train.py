@@ -11,7 +11,7 @@ import numpy as np
 import tensorflow as tf
 from sklearn.feature_selection import mutual_info_regression
 from tcl import tcl
-from subfunc.showdata import showtimedata
+from subfunc.showdata import show_mutual_info
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -178,7 +178,7 @@ def train(data,
     save_path = os.path.join(train_dir, save_file)
     print("Save model in file: {0:s}".format(save_path))
     saver.save(sess, save_path)
-    showtimedata(np.array(mutual_infos).T, 'mutal_infos.png',xlabel="Time", ylabel="Channel", fontsize=14, linewidth=1.5,
+    show_mutual_info(np.array(mutual_infos).T, 'mutal_infos.png',xlabel="Time", ylabel="Channel", fontsize=14, linewidth=1.5,
              intervalstd=10, figsize=None)
 
 

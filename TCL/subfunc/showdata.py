@@ -92,8 +92,8 @@ def showtimedata(X, filename,xlabel="Time", ylabel="Channel", fontsize=14, linew
     plt.clf()
     #plt.pause(0.001)
 
-    def show_mutual_info(X, filename='mutual_info.png',xlabel="Time", ylabel="Mutual information", fontsize=14, linewidth=1.5,
-                 intervalstd=10, figsize=None):
+def show_mutual_info(X, filename='mutual_info.png',xlabel="Time", ylabel="Mutual information", fontsize=14, linewidth=1.5,
+             intervalstd=10, figsize=None):
 
     # Prepare plot data ---------------------------------------
     if figsize is None:
