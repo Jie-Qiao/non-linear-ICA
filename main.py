@@ -59,6 +59,14 @@ if train_or_load == 'train':
     ## Building and training our logistic model ##
     logistic = logistic_model(n_sources,n_layers_feature=n_mixing_layers,feature_layer_size=mixing_layer_size,n_layers_psi=n_mixing_layers,psi_layer_size=mixing_layer_size,regularization_coeff=regularization_coeff)
     logistic.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+
+    ## Run MINE on activations before to get MI estimate
+    activations = get_activations(logistic, [x,u])
+    for layer in activations:
+        if 'feature' in layer:
+            extracted_features = activations[layer]
+    run_mine(extracted_features, name="MINE_pre_train")
+
     logistic.fit(x = [x_concat,u_concat],y=labels, epochs=epochs, batch_size= batch_size)
 
     logistic.save('models/logistic_model.h5')
@@ -87,6 +95,7 @@ transformed_extracted_features = extracted_features
 
 
 MIs = run_mine(extracted_features)
+# MIs2 = run_mine(transformed_extracted_features)
 plot_signals(transformed_extracted_features,step,name='extracted_features')
 ## Compare the extracted features to original sources
 h_u_pos = np.concatenate([transformed_extracted_features,sources[sec:]],axis=1)

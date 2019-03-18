@@ -2,12 +2,12 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 import matplotlib.pyplot as plt
 import numpy as np
+
 # from sklearn.feature_selection import mutual_info_regression
 
 # H=20
 # n_epochs = 200
 # data_size = 20000
-
 def MINE(x_in, y_in, H=20):
 
     # shuffle and concatenate
@@ -32,12 +32,38 @@ def MINE(x_in, y_in, H=20):
 
     return neg_loss, opt
 
-def run_mine(extracted_features, n_sources=2):
+def run_mine(extracted_features, n_sources=4, save=True, name="MINE"):
     MIs = np.zeros(( n_sources, n_sources ))
     for i in range(n_sources):
         for j in range(n_sources):
             if i != j:
                 MIs[i,j] = run_individual_mine(extracted_features[:,0], extracted_features[:,1])
+
+
+    if save:
+        print(MIs)
+        fig, ax = plt.subplots() # im = ax.imshow(harvest)
+        ax.imshow(MIs)
+
+        ax.set_xticks(np.arange(n_sources))
+        ax.set_yticks(np.arange(n_sources))
+        # ... and label them with the respective list entries
+        ax.set_xticklabels(np.arange(n_sources))
+        ax.set_yticklabels(np.arange(n_sources))
+
+        for i in range(n_sources):
+            for j in range(n_sources):
+                ax.text(j, i, "{:.3f}".format(MIs[i, j]), ha="center",
+                        va="center", color="b")
+
+        ax.set_title("Estimated Mutual Information")
+        fig.tight_layout()
+
+        # plt.xlabel('Feature')
+        # plt.ylabel('Feature')
+        # plt.title('Estimated Mutual Information')
+        plt.savefig('plots/'+name+'.png')
+        plt.clf()
     return MIs
 
 def run_individual_mine(x_sample, y_sample, n_epochs=200, data_size=20000, H=20, save=False):
